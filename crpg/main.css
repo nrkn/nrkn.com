@@ -1,0 +1,16 @@
+html, body {
+  background: #333;
+  color: #fff;
+  margin: 0;
+}
+
+canvas {
+  background: #000;
+  display: block;
+  margin: auto;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  width: 100vmin;
+  height: auto;
+}

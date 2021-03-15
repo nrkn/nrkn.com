@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fluid full screen app</title>
+    <style>
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+ 
+body {  
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+  overflow: hidden;
+}
+
+main > section {
+  overflow-y: auto;
+  padding-right: 17px;
+}
+
+main > section:last-child {
+  display: flex;
+  flex: auto;
+  flex-direction: column;  
+}
+
+main > section:last-child > textarea {
+  flex: auto;  
+}
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Heading</h1>
+    </header>
+    
+    <main>
+      <section>
+        <h1>One</h1>
+        <ul>
+        </ul>
+      </section>
+      
+      <section>
+        <h1>Two</h1>
+      </section>
+      
+      <section>
+        <header>
+          <h1>Three</h1>
+        </header>
+        <textarea></textarea>
+        <footer>
+          <p>Footer</p>
+        </footer>
+      </section>
+    </main>
+    
+    <footer>
+      <p>Footer</p>
+    </footer>
+    
+    <script>
+(function(){
+  'use strict'
+  
+  var list = document.querySelector( 'ul' )
+  
+  for( var i = 0; i < 100; i++ ){
+    var li = document.createElement( 'li' )
+    li.textContent = '0' + i
+    list.appendChild( li )
+  }
+})()    
+    </script>
+  </body>
+</html>

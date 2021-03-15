@@ -1,0 +1,39 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  margin: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  width: 100vw;
+  height: 100vh;
+  align-items: end;
+  font-family: "Consolas", "Monaco", "Lucida Console", monospace;
+}
+
+div {
+  background: #000;
+  color: #fff;
+  display: block;
+  padding: 1rem;
+  overflow: hidden;
+  font-size: 1.5rem;
+}
+
+form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+input, button {
+  display: block;
+  padding: 1rem;
+  font: inherit;
+}

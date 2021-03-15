@@ -1,0 +1,8 @@
+grass
+path + road
+pools and trees
+noise
+buildings 1
+buildings 2
+car1
+car2

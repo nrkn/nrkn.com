@@ -1,0 +1,46 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+  <title>Pokémon Go Type Trainer</title>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-47155800-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-47155800-1');
+  </script>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/type-icons.css">
+</head>
+<body>
+  <header>
+    <h1>Pokémon Go Type Trainer</h1>
+  </header>
+  <main>
+    <div class="question-area">
+      <!-- <h2>Easy</h2> -->
+      <h2>Score: <span class="score">0</span>/<span class="questionCount">0</span></h2>
+      <section class="question"></section>
+      <h2>History</h2>
+    </div>
+    <section class="history"></section>
+  </main>
+  <footer>
+    <p><small>© 2018 Nik Coughlin</small></p>
+  </footer>
+  <template id="easy">
+    <p>
+      <div class="icon type1"><img></div>
+      <div class="icon type2"><img></div>
+    </p>
+    <p class="message"></p>
+    <button type="button" class="strong">Super effective</button>
+    <button type="button" class="normal">Normal</button>
+    <button type="button" class="weak">Not very effective</button>
+  </template>
+  <script src="js/main.js"></script>
+</body>

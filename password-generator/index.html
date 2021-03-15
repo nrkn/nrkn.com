@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem 2rem;
+    }
+
+    form {
+      display: table;
+    }
+
+    label {
+      display: table-row;
+      padding-bottom: 0.5rem;
+      line-height: 2;
+    }
+
+    label span,
+    label input {
+      display: table-cell;
+    }
+
+    label input {
+      font-size: 1rem;
+      width: 3rem;
+      text-align: right;
+    }
+
+    form button {
+      display: block;
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+    }
+
+    pre {
+      overflow-x: auto;
+    }
+  </style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-47155800-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-47155800-1');
+  </script>
+</head>
+<body>
+  <h1>Password Generator</h1>
+  <form>
+    <label>
+      <span>Password Length</span>
+      <input name="length" type="number" value="20" step="1" min="10" max="256" />
+    </label>
+    <label>
+      <span>Include Letters</span>
+      <input name="useLetters" type="checkbox" checked />
+    </label>
+    <label>
+      <span>Include Mixed Case</span>
+      <input name="useMixed" type="checkbox" checked />
+    </label>
+    <label>
+      <span>Include Numbers</span>
+      <input name="useNumbers" type="checkbox" checked />
+    </label>
+    <label>
+      <span>Include Punctuation</span>
+      <input name="usePunctuation" type="checkbox" checked />
+    </label>
+    <label>
+      <span>Quantity</span>
+      <input name="quantity" type="number" value="1" step="1" min="1" max="50" />
+    </label>
+    <button name="generate">Generate</button>
+    <button name="reset" type="reset">Reset</button>
+  </form>
+  <pre></pre>
+  <script>
+    const punctuation = '!#$&*+-=?@_'
+    const numbers = '0123456789'
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const lower = 'abcdefghijklmnopqrstuvwxyz'
+
+    const els = {
+      form: document.querySelector( 'form' ),
+      length: document.querySelector( '[name="length"]' ),
+      useLetters: document.querySelector( '[name="useLetters"]' ),
+      useMixed: document.querySelector( '[name="useMixed"]' ),
+      useNumbers: document.querySelector( '[name="useNumbers"]' ),
+      usePunctuation: document.querySelector( '[name="usePunctuation"]' ),
+      quantity: document.querySelector( '[name="quantity"]' ),
+      generate: document.querySelector( '[name="generate"]' ),
+      reset: document.querySelector( '[name="reset"]' ),
+      output: document.querySelector( 'pre' )
+    }
+
+    const state = {
+      get length() { return Number( els.length.value ) },
+      get useLetters() { return els.useLetters.checked },
+      get useMixed() { return els.useMixed.checked },
+      get useNumbers() { return els.useNumbers.checked },
+      get usePunctuation() { return els.usePunctuation.checked },
+      get quantity() { return Number( els.quantity.value ) },
+      set length( value ) { els.length.value = value },
+      set useLetters( value ) { els.useLetters.checked = value },
+      set useMixed( value ) { els.useMixed.checked = value },
+      set useNumbers( value ) { els.useNumbers.checked = value },
+      set usePunctuation( value ) { els.usePunctuation.checked = value },
+      set quantity( value ) { els.quantity.value = value }
+    }
+
+    els.useLetters.addEventListener( 'change', () => {
+      if ( state.useLetters ) {
+        els.useMixed.disabled = false
+        els.useLetters.disabled = false
+      } else {
+        els.useMixed.disabled = true
+        state.useMixed = false
+        state.useNumbers = true
+      }
+    } )
+
+    els.useNumbers.addEventListener( 'change', () => {
+      if ( state.useNumbers ) {
+        els.useLetters.disabled = false
+      } else {
+        els.useMixed.disabled = false
+        state.useLetters = true
+        els.useLetters.disabled = true
+      }
+    } )
+
+    els.reset.addEventListener( 'click', () => {
+      els.useMixed.disabled = false
+      els.useLetters.disabled = false
+      els.output.innerHTML = ''
+    } )
+
+    els.form.addEventListener( 'submit', e => {
+      e.preventDefault()
+
+      let chars = ''
+
+      if ( state.useLetters ) chars += lower
+      if ( state.useLetters && state.useMixed ) chars += upper
+      if ( state.useNumbers ) chars += numbers
+      if ( state.usePunctuation ) chars += punctuation
+
+      let passwords = []
+
+      for ( let q = 0; q < state.quantity; q++ ) {
+        let password = ''
+
+        for ( let p = 0; p < state.length; p++ ) {
+          const i = Math.floor( Math.random() * chars.length )
+          password += chars[ i ]
+        }
+
+        passwords.push( password )
+      }
+
+      els.output.innerHTML = passwords.join( '\n' ) + '\n'
+    } )
+  </script>
+</body>
+</html>

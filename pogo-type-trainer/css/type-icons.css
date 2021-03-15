@@ -1,0 +1,93 @@
+.icon {
+  display: inline-block;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+}
+
+.icon--small {
+  width: 1rem;
+  height: 1rem;
+}
+
+.icon img {
+  display: inline-block;
+  width: 60%;
+  margin: 20%;
+  height: auto;
+  filter: invert( 100% );
+}
+
+.icon--water {
+  background: linear-gradient( to bottom, #4d91d7 0%, #73c6df 100% );
+}
+
+.icon--steel {
+  background: linear-gradient( to bottom, #54869e 0%, #58abab 100% );
+}
+
+.icon--rock {
+  background: linear-gradient( to bottom, #c7b78a 0%, #d7cd92 100% );
+}
+
+.icon--psychic {
+  background: linear-gradient( to bottom, #f96d75 0%, #fda39a 100% );
+}
+
+.icon--poison {
+  background: linear-gradient( to bottom, #aa66cc 0%, #c660d7 100% );
+}
+
+.icon--normal {
+  background: linear-gradient( to bottom, #797d7e 0%, #9a9995 100% );
+}
+
+.icon--ice {
+  background: linear-gradient( to bottom, #2bb5a6 0%, #78c5bf 100% );
+}
+
+.icon--ground {
+  background: linear-gradient( to bottom, #c17249 0%, #ca936c 100% );
+}
+
+.icon--grass {
+  background: linear-gradient( to bottom, #21934d 0%, #2fb47f 100% );
+}
+
+.icon--ghost {
+  background: linear-gradient( to bottom, #456095 0%, #7a75b5 100% );
+}
+
+.icon--flying {
+  background: linear-gradient( to bottom, #8199bd 0%, #a5b4cb 100% );
+}
+
+.icon--fire {
+  background: linear-gradient( to bottom, #d37b31 0%, #d39540 100% );
+}
+
+.icon--fighting {
+  background: linear-gradient( to bottom, #c3334e 0%, #d37377 100% );
+}
+
+.icon--fairy {
+  background: linear-gradient( to bottom, #d289c1 0%, #d1a2c4 100% );
+}
+
+.icon--electric {
+  background: linear-gradient( to bottom, #c3a427 0%, #d2bd64 100% );
+}
+
+.icon--dragon {
+  background: linear-gradient( to bottom, #1d547d 0%, #1e719b 100% );
+}
+
+.icon--dark {
+  background: linear-gradient( to bottom, #41403e 0%, #585755 100% );
+}
+
+.icon--bug {
+  background: linear-gradient( to bottom, #6f9a24 0%, #9bb23d 100% );
+}
+
+

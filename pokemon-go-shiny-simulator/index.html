@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>Pokémon Go Shiny Simulator</title>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-47155800-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-47155800-1');
+  </script>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    label span {
+      display: block;
+      font-weight: bold;
+    }
+
+    .progress {
+      background: rgba( 255, 255, 255, 0.5 );
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Pokémon Go Shiny Simulator</h1>
+  <p>
+    There is a lot of discussion about whether or not the random numbers that
+    determine if you get a shiny in Pokémon Go are fair, or if some accounts are
+    actually biased in a way that means that they get more shinies than others.
+    If you just compare yourself to your friends, it certainly seems like some
+    people get more than their share of luck!
+  </p>
+  <p>
+    This app tries to simulate what happens when the random number generator
+    is fair (like rolling a dice), and not biased towards specific player
+    accounts.
+    <a href="https://github.com/nrkn/pokemon-go-shiny-simulator/blob/master/README.md">Read more about fairness, and this simulator</a>
+  </p>
+  <h2>Settings</h2>
+  <form>
+    <label>
+      <span>Number of People</span>
+      <input name="numPeople" type="number" value="10" min="2" max="100000" step="1">
+    </label>
+    <label>
+      <span>Number of Encounters</span>
+      <input name="numEncounters" type="number" value="50000" min="10" max="250000" step="1">
+    </label>
+    <label>
+      <span>Shiny Rate (1:n)</span>
+      <input name="shinyRate" type="number" value="400" min="10" max="450" step="1">
+    </label>
+    <button type="button">Simulate</button>
+  </form>
+  <div class="results"></div>
+  <hr>
+  <p>
+    © 2019 Nik Coughlin -
+    <a href="https://github.com/nrkn/pokemon-go-shiny-simulator">Source on Github (MIT license)</a>
+  </p>
+  <div class="progress">
+    <progress></progress>
+  </div>
+  <script defer src="app.js"></script>
+</body>
+
+</html>

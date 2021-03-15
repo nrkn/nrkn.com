@@ -1,0 +1,304 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>tower</title>
+    <style>
+    </style>
+  </head>
+  <body>
+    <canvas id="viewport" width="640" height="640"></canvas>
+    <pre id="debug">1</pre>
+    <script src="astar.js"></script>
+    <script>
+      ( () => {
+        'use strict'
+        
+        const gridDim = {
+          width: 16,
+          height: 16
+        }
+        
+        const spriteDim = {
+          width: 16,
+          height: 16
+        }        
+
+        const viewportDim = {
+          width: gridDim.width * spriteDim.width,
+          height: gridDim.height * spriteDim.height
+        }
+        
+        const gridLength = gridDim.width * gridDim.height
+        
+        const spriteData = {
+          wall: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxRDA3NkUyNEYyM0YxMUU1QkJBQUM0MUEzM0JCQjIzQyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxRDA3NkUyNUYyM0YxMUU1QkJBQUM0MUEzM0JCQjIzQyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjFEMDc2RTIyRjIzRjExRTVCQkFBQzQxQTMzQkJCMjNDIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjFEMDc2RTIzRjIzRjExRTVCQkFBQzQxQTMzQkJCMjNDIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+g80JYAAAABJQTFRFIiA0Mjw5RSg8UkskWVZSaWpqq4nqKAAAACRJREFUCNdjCHEBA2cGZ2MwMKSMYUSKCJxhwGAoKCioqKjEAAC3WxoPd8ZTtQAAAABJRU5ErkJggg==',
+          floor: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo2QkVDRTJDNkYyMjcxMUU1OEY3MTk1MzJBODg1MTdCMCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo2QkVDRTJDN0YyMjcxMUU1OEY3MTk1MzJBODg1MTdCMCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjZCRUNFMkM0RjIyNzExRTU4RjcxOTUzMkE4ODUxN0IwIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjZCRUNFMkM1RjIyNzExRTU4RjcxOTUzMkE4ODUxN0IwIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+3kTEHwAAAJBJREFUeNpi/P///5x1O768mvz1uS0DXnD9Q9S/F4WMs9duP7d3M5qctIjs0zePMfV8ePOCCWg2pgRW1RDARNAlyODn10tMDKQAdm49EjQosh4j2QaQHwaThvu/rUi2YXCGEgswDfIxdCLbC/QckIR7FM7+xR/+4OMmxsiwIHg6AfoJSKL5Ei7y4KMokAQIMAAREEU6uhY5EAAAAABJRU5ErkJggg==',
+          shadow: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpGRDNEOEM5M0YyQzAxMUU1QTExMjgxREYzRUVDN0M1MyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpGRDNEOEM5NEYyQzAxMUU1QTExMjgxREYzRUVDN0M1MyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZEM0Q4QzkxRjJDMDExRTVBMTEyODFERjNFRUM3QzUzIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkZEM0Q4QzkyRjJDMDExRTVBMTEyODFERjNFRUM3QzUzIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+FMmIQgAAACBJREFUeNpiZGBgcGCgADAxUAhGDRg1YNSAwWIAQIABAEgfAGDT5VWhAAAAAElFTkSuQmCC',
+          creep: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpBQTNBMjEyNUYyQzExMUU1OENDRkI0MjI5MkI3NDk2MiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpBQTNBMjEyNkYyQzExMUU1OENDRkI0MjI5MkI3NDk2MiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkFBM0EyMTIzRjJDMTExRTU4Q0NGQjQyMjkyQjc0OTYyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkFBM0EyMTI0RjJDMTExRTU4Q0NGQjQyMjkyQjc0OTYyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+i9K9aQAAABJQTFRF////GhIhTktPZHXMdr/I3e7UO8qNhQAAAAF0Uk5TAEDm2GYAAABjSURBVAjXJY5LFcAgEAODAz4KoDVAg4KyOCj+rTTAXHZeDskCcCF4CJfGV5fFMeeXFdxTvB6uraR7RDazzozUOtl6RTrJkk1FfNa9sqSQReJYBNVzyfhoIxppeY+a1TO/3/gBv1wTQ8ITGhcAAAAASUVORK5CYII=',
+          start: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpDNTFDRjA4REYyQzIxMUU1QkM2QjhCMzVFOEUwNjRGRCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpDNTFDRjA4RUYyQzIxMUU1QkM2QjhCMzVFOEUwNjRGRCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkM1MUNGMDhCRjJDMjExRTVCQzZCOEIzNUU4RTA2NEZEIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkM1MUNGMDhDRjJDMjExRTVCQzZCOEIzNUU4RTA2NEZEIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+7o8xZgAAABJQTFRF////GhIhOGYnTktPbaws1Nddw57SDAAAAAF0Uk5TAEDm2GYAAABjSURBVAjXJY5LFcAgEAODAz4KCBigVAHdOij+rTTAXHZeDskCcCF4CBffLy9L75xfU3BP8Xi4upLhkVjNBhtiHWQdGfEkSzYZqax7NUknu8SxC6rnkrFoIxlpbY+a5TO/3/gBXLMR7wtcr74AAAAASUVORK5CYII=',
+          end: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpFOTgwMERFM0YyQzIxMUU1QUUzMjhCMkUzQjdGRjIwRiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpFOTgwMERFNEYyQzIxMUU1QUUzMjhCMkUzQjdGRjIwRiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkU5ODAwREUxRjJDMjExRTVBRTMyOEIyRTNCN0ZGMjBGIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkU5ODAwREUyRjJDMjExRTVBRTMyOEIyRTNCN0ZGMjBGIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+DnhMPQAAABJQTFRF////GhIhTktPf04zx0lLzamX+gtCUgAAAAF0Uk5TAEDm2GYAAABjSURBVAjXJY5LFcAgEAODAz4KoDVAg4KyOCj+rTTAXHZeDskCcCF4CJfGV5fFMeeXFdxTvB6uraR7RDazzozUOtl6RTrJkk1FfNa9sqSQReJYBNVzyfhoIxppeY+a1TO/3/gBv1wTQ8ITGhcAAAAASUVORK5CYII='
+        }
+        
+        const spriteNames = Object.keys( spriteData )
+        
+        const spriteIndices = spriteNames.reduce( 
+          ( indices, spriteName, i ) => {
+            indices[ spriteName ] = i
+            
+            return indices
+          },
+          {}
+        )
+        
+        const loadSprites = spriteData => Promise.all(
+          Object.keys( spriteData ).map(
+            spriteName => new Promise(
+              resolve => {
+                const image = new Image()
+                
+                image.onload = () => {
+                  resolve( image )
+                }
+                
+                image.src = spriteData[ spriteName ]
+              }
+            )
+          )
+        )
+        
+        const floor = []
+        
+        for( var i = 0; i < gridLength; i++ ){
+          floor[ i ] = spriteIndices[ 'floor' ] + 1
+        }
+        
+        const specials = []
+        
+        const startPosition = {
+          x: 0,
+          y: ~~( Math.random() * gridDim.height )
+        }
+
+        const endPosition = {
+          x: gridDim.width - 1,
+          y: ~~( Math.random() * gridDim.height )
+        }
+        
+        const startIndex = startPosition.y * gridDim.width + startPosition.x
+        const endIndex = endPosition.y * gridDim.width + endPosition.x
+        
+        specials[ startIndex ] = spriteIndices[ 'start' ] + 1
+        specials[ endIndex ] = spriteIndices[ 'end' ] + 1
+        
+        const shadows = []
+        const walls = []
+
+        for( var i = 0; i < gridLength; i++ ){
+          const r = Math.random()
+          
+          if( r < 0.2 && !specials[ i ] ){
+            shadows[ i ] = {
+              offset: {
+                x: 4,
+                y: 4
+              },
+              spriteIndex: spriteIndices[ 'shadow' ] + 1
+            }
+            
+            walls[ i ] = spriteIndices[ 'wall' ] + 1            
+          }
+        }
+        
+        const creepCount = 1000
+        //in ms
+        const creepSpawnTime = 250
+        const creeps = []
+        
+        for( var i = 0; i < creepCount; i++ ){
+          creeps.push({
+            spawnTime: creepSpawnTime * i,
+            //tiles per second
+            speed: ~~( Math.random() * 10 ) + 2,
+            spriteIndex: spriteIndices[ 'creep' ] + 1 
+          })
+        }
+        
+        const layers = [ floor, specials, shadows, walls ]
+        
+        const drawLayer = ( context, sprites, layer ) => {
+          for( var y = 0; y < gridDim.height; y++ ){
+            for( var x = 0; x < gridDim.width; x++ ){
+              const i = y * gridDim.width + x
+              
+              if( layer[ i ] ){
+                let rX = x * spriteDim.width
+                let rY = y * spriteDim.height
+
+                if( layer[ i ].offset ){
+                  rX += layer[ i ].offset.x
+                  rY += layer[ i ].offset.y
+                }
+                
+                //spriteIndex in layer is 1 based so that existence in a layer can be tested with a falsey check
+                const spriteIndex = ( layer[ i ].spriteIndex ? layer[ i ].spriteIndex : layer[ i ] ) - 1
+                
+                context.drawImage( sprites[ spriteIndex ], rX, rY, spriteDim.width, spriteDim.height )
+              }
+            }
+          }
+        }
+        
+        const drawCreeps = ( context, sprites, creeps, time, path ) => {
+          for( var i = 0; i < creeps.length; i++ ){
+            var startTime = time - creeps[ i ].spawnTime
+            
+            if( startTime > 0 ){            
+              var linearPosition = startTime / 1000 * creeps[ i ].speed
+              
+              var startIndex = ~~linearPosition
+              
+              if( startIndex < path.length - 1 ){
+                var startPosition = path[ startIndex ]
+                var endPosition = path[ startIndex + 1 ]
+                var offset = linearPosition % 1          
+                
+                context.drawImage( 
+                  sprites[ creeps[ i ].spriteIndex - 1 ], 
+                  ( startPosition.x + ( ( endPosition.x - startPosition.x ) * offset ) ) * spriteDim.width, 
+                  ( startPosition.y + ( ( endPosition.y - startPosition.y ) * offset ) ) * spriteDim.height, 
+                  spriteDim.width, 
+                  spriteDim.height 
+                )
+              } 
+            }  
+          }
+        }
+        
+        const layerToGraph = layer => {
+          const graphData = []
+          
+          //the graph structure is x first - at odds with majority consensus!
+          for( var x = 0; x < gridDim.width; x++ ){
+            const row = []
+            
+            for( var y = 0; y < gridDim.height; y++ ){
+              const i = y * gridDim.width + x
+              
+              row.push( layer[ i ] ? 0 : 1 )
+            }
+            
+            graphData.push( row )
+          }
+          
+          return new Graph( graphData )
+        }
+        
+        const drawMap = ( context, sprites, layers ) => {
+          layers.forEach( 
+            layer => {
+              drawLayer( context, sprites, layer ) 
+            }
+          )
+        }        
+        
+        const drawPath = ( context, path ) => {
+          context.strokeStyle = '#76bfc8'
+          context.beginPath()
+          
+          const firstStartPoint = {
+            x: startPosition.x * spriteDim.width + ~~( spriteDim.width / 2 ) + 0.5,
+            y: startPosition.y * spriteDim.height + ~~( spriteDim.height / 2 ) + 0.5,          
+          }
+          
+          const firstEndPoint = {
+            x: path[ 0 ].x * spriteDim.width + ~~( spriteDim.width / 2 ) + 0.5,
+            y: path[ 0 ].y * spriteDim.height + ~~( spriteDim.height / 2 ) + 0.5,
+          }
+          
+          context.moveTo( firstStartPoint.x, firstStartPoint.y )
+          context.lineTo( firstEndPoint.x, firstEndPoint.y )
+          
+          for( var i = 0; i < path.length - 1; i++ ){
+            const start = path[ i ]
+            const end = path[ i + 1 ]            
+            
+            const startPoint = {
+              x: start.x * spriteDim.width + ~~( spriteDim.width / 2 ) + 0.5,
+              y: start.y * spriteDim.height + ~~( spriteDim.height / 2 ) + 0.5,
+            }
+            
+            const endPoint = {
+              x: end.x * spriteDim.width + ~~( spriteDim.width / 2 ) + 0.5,
+              y: end.y * spriteDim.height + ~~( spriteDim.height / 2 ) + 0.5,
+            }
+            
+            context.moveTo( startPoint.x, startPoint.y )
+            context.lineTo( endPoint.x, endPoint.y )
+          }
+          
+          context.stroke()
+        }
+        
+        const graph = layerToGraph( walls )
+        const pathStart = graph.grid[ startPosition.x ][ startPosition.y ]
+        const pathEnd = graph.grid[ endPosition.x ][ endPosition.y ]
+        const path = [ startPosition ].concat( astar.search( graph, pathStart, pathEnd ) )
+        
+        const debug = document.getElementById( 'debug' )
+        const renderCanvas = document.createElement( 'canvas' )
+        const renderContext = renderCanvas.getContext( '2d' )
+        const mobCanvas = document.createElement( 'canvas' )
+        const mobContext = mobCanvas.getContext( '2d' )
+        const viewportCanvas = document.getElementById( 'viewport' )
+        const viewportContext = viewportCanvas.getContext( '2d' )
+        const scale = 2
+
+        renderCanvas.width = viewportDim.width
+        renderCanvas.height = viewportDim.height
+
+        mobCanvas.width = viewportDim.width
+        mobCanvas.height = viewportDim.height
+        
+        viewportCanvas.width = viewportDim.width * scale
+        viewportCanvas.height = viewportDim.height * scale
+        
+        const init = sprites => {
+          let last = 0
+          
+          drawMap( renderContext, sprites, layers )          
+          
+          if( path.length ){ 
+            drawPath( renderContext, path )
+          }
+          
+          const tick = time => {
+            window.requestAnimationFrame( tick )
+            
+            var elapsed = time - last
+            var fps = ~~( 1000 / elapsed ) + 'fps'
+                        
+            viewportContext.drawImage( renderCanvas, 0, 0, renderCanvas.width, renderCanvas.height, 0, 0, viewportCanvas.width, viewportCanvas.height )
+            
+            if( path.length ){               
+              mobCanvas.width = viewportDim.width
+              mobCanvas.height = viewportDim.height
+              
+              drawCreeps( mobContext, sprites, creeps, time, path )
+              
+              viewportContext.drawImage( mobCanvas, 0, 0, mobCanvas.width, mobCanvas.height, 0, 0, viewportCanvas.width, viewportCanvas.height )
+            }              
+            
+            debug.textContent = fps
+            
+            last = time
+          }
+          
+          tick( last )
+        }
+
+        loadSprites( spriteData ).then( init )
+      })()
+    </script>
+  </body>
+</html>

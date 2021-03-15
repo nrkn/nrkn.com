@@ -1,0 +1,455 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>List Builder Dialog Prototype</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+    <link rel="stylesheet" href="dragula.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <script src="js/vendor/modernizr.js"></script>
+    <style>
+      .no-overflow {
+        overflow: hidden;
+      }
+      
+      .app-modal {
+        position: fixed;        
+      }
+      
+      .app-modal .viewport {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+      }
+      
+      .app-rows {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      
+      .app-columns {
+        display: flex;
+        flex-direction: row;
+        overflow: hidden; 
+        flex: 1;        
+      }
+      
+      .app-columns > .app-column {
+        overflow-y: scroll;
+        padding-right: 17px;
+      }
+      
+      .items {
+        flex: 1;
+        min-width: 6em;
+      }
+      
+      .selection {
+        padding-left: 1rem;
+      }
+      
+      .ratio {
+        position: relative;
+      }
+
+      .ratio:before {
+        content: '';
+        display: block;
+        padding-top: 100%;
+      }
+
+      .ratio .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 0.25em;
+      }     
+
+      .library .ratio {
+        border: 1px solid #eee;
+        color: #666;
+        width: 100%;
+      }
+
+      .library a:hover .ratio {
+        border: 1px solid #39f;
+        background: rgba( 51, 153, 255, 0.5 );
+        color: #fff;
+      }  
+      
+      .library .selected a .ratio {
+        border: 1px solid #39f;
+        background: #39f;
+        color: #fff;
+      }  
+      
+      .icon-library .content {
+        text-align: center;
+      }
+
+      .icon-library .content:before {
+        content: '';
+        display: inline-block;
+        vertical-align: middle;
+        height: 100%;
+        width: 1px;
+        margin-left: -1px;
+      }
+
+      [data-image] img {
+        width: 100%;
+        height: auto;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      [data-image] img[data-ratio="portrait"] {
+        width: auto;
+        height: 100%;
+      }
+
+      .icon-library i.fa {
+        vertical-align: middle;
+        font-size: 4vw;
+      }
+
+
+      .icon-library i.primary-action {
+        color: #39f;
+      }
+
+      .icon-library a:hover i.primary-action, .icon-library .selected a i.primary-action {
+        color: #fff;
+      }
+
+      .icon-library span {
+        background: rgba( 255, 255, 255, 0.8 );
+        text-shadow: 0 -1px 0 #fff;
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .icon-library a:hover span, .icon-library .selected a span {
+        color: #666;
+      }
+
+      .icon-library.small-library span {
+        font-size: 66%;
+      } 
+
+      .flex-library {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        list-style: none;
+        margin: 0;
+      }
+      
+      .flex-library li {
+        width: 10rem;
+        margin-right: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .icon-button .button {
+        padding: 0.25rem 0.5rem;
+        margin: 0;
+      }
+      
+      .item-icon i {
+        border: 1px solid #eee;
+        line-height: normal;
+        padding: 0.5rem;
+      }
+      
+      .item-label {
+        font-size: 66%;
+      }
+      
+      .selection {
+        width: 12rem;
+      }
+      
+      .selected-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      
+      .selected-item .item-icon {
+        color: #666;
+      }
+      
+      .selected-item .item-label {
+        flex: 1;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 0 0.5rem;
+      }    
+      
+      .selected-item .item-label span {
+        white-space: nowrap;
+      }        
+    </style>
+  </head>
+  <body>   
+    <div class="row">
+      <div class="large-12 columns">
+        <h1>List Builder Dialog Prototype</h1>
+        <p>
+          <a href="#" data-reveal-id="myModal">List builder</a>
+        </p>
+        <h2>Blah blah blah</h2>
+        <p>
+          Lorem ipsum dolor sit amet, ei prompta feugiat moderatius mel. Summo delicatissimi vituperatoribus eu cum. Facer aeterno expetendis ius no, purto facilis vituperatoribus pro ne. Te eam consulatu liberavisse consectetuer, eum discere omittantur id.
+        </p>
+        <p>
+          Quod aliquid pro in, reque iriure alienum eos no. In vero feugiat scaevola vim, at pro assum commodo, amet soleat duo id. Eu simul fabulas cum, unum omnes aliquid nec in. Mei vocent impedit epicurei et, an nam diceret splendide voluptaria, ea qui luptatum intellegam definitiones. Est in doctus nostrud, in copiosae elaboraret consectetuer nam, mel rebum euismod ea. Hinc fastidii id eum, ex patrioque vituperata vix.
+        </p>
+        <p>
+          Id mea etiam corpora. Eu quando timeam saperet eos, porro ubique per at. Ea ludus molestie suscipit mei. At quas affert hendrerit per, est omnis eloquentiam id, nam et deseruisse elaboraret.
+        </p>
+        <p>
+          Et vix illum maluisset, in iuvaret dolorum cum. Vim ex atqui ponderum vituperatoribus, omittam cotidieque dissentiet ne ius, an cibo etiam sea. Id virtute oportere sea, mutat animal at est. Veritus dissentias at sit.
+        </p>
+        <p>
+          In meis augue vis. Sit persius volutpat ut. Quo nostro accusam honestatis eu. Ex vim omnis lorem nihil, meis alterum gubergren est in.
+        </p>
+        <p>
+          In ludus docendi percipit pro. Vim quod autem ad, duo nostrum offendit in. Est ut ridens laoreet delectus, erant lucilius expetendis et his, te putant argumentum mel. No sit rebum putant voluptatibus, dicam laoreet periculis ius ex. Possim mediocrem consectetuer ex quo. Partem fabulas an vim, dolor eligendi senserit vel an. Id has minimum fabellas.
+        </p>
+        <p>
+          An his phaedrum neglegentur consectetuer. Vis summo virtute alterum cu, illud verear ponderum est no, ex facer latine apeirian ius. No ancillae cotidieque cum, docendi deseruisse usu et, brute iudicabit maiestatis an vim. Ad sit saepe delenit accusam, dicat feugiat interesset et vel. Mea sonet percipit splendide cu, cum ad partem semper, repudiandae voluptatibus ad sea.
+        </p>
+        <p>
+          Tation recusabo theophrastus sed ne, ei mel aeque errem incorrupte. Iudicabit suscipiantur necessitatibus ei eos. Ne pro erant menandri accommodare, ius no vero dissentiet. Brute libris persecuti usu et, mei fabellas recteque ei.
+        </p>
+        <p>
+          Quo an graecis civibus, his harum dolore te. Quando praesent pro no, eirmod labitur necessitatibus usu an. Te singulis elaboraret vis, ea malis deseruisse vim. Debitis epicurei instructior id cum, ea nostro maiorum sea.
+        </p>
+        <p>
+          Has animal adolescens conclusionemque ut. Admodum noluisse ad pro, maiorum petentium vel at, id mel duis habeo assueverit. Omnis utinam ocurreret ne eum, meis necessitatibus id quo, labore elaboraret pri te. At albucius menandri nam, et duo corpora dissentias. Laoreet conceptam appellantur in qui, vel at scripta convenire cotidieque, cum te atqui paulo prodesset. An mei movet facilisi, quis maluisset ut mel.
+        </p>        
+        <h2>Blah blah blah</h2>
+        <p>
+          Lorem ipsum dolor sit amet, ei prompta feugiat moderatius mel. Summo delicatissimi vituperatoribus eu cum. Facer aeterno expetendis ius no, purto facilis vituperatoribus pro ne. Te eam consulatu liberavisse consectetuer, eum discere omittantur id.
+        </p>
+        <p>
+          Quod aliquid pro in, reque iriure alienum eos no. In vero feugiat scaevola vim, at pro assum commodo, amet soleat duo id. Eu simul fabulas cum, unum omnes aliquid nec in. Mei vocent impedit epicurei et, an nam diceret splendide voluptaria, ea qui luptatum intellegam definitiones. Est in doctus nostrud, in copiosae elaboraret consectetuer nam, mel rebum euismod ea. Hinc fastidii id eum, ex patrioque vituperata vix.
+        </p>
+        <p>
+          Id mea etiam corpora. Eu quando timeam saperet eos, porro ubique per at. Ea ludus molestie suscipit mei. At quas affert hendrerit per, est omnis eloquentiam id, nam et deseruisse elaboraret.
+        </p>
+        <p>
+          Et vix illum maluisset, in iuvaret dolorum cum. Vim ex atqui ponderum vituperatoribus, omittam cotidieque dissentiet ne ius, an cibo etiam sea. Id virtute oportere sea, mutat animal at est. Veritus dissentias at sit.
+        </p>
+        <p>
+          In meis augue vis. Sit persius volutpat ut. Quo nostro accusam honestatis eu. Ex vim omnis lorem nihil, meis alterum gubergren est in.
+        </p>
+        <p>
+          In ludus docendi percipit pro. Vim quod autem ad, duo nostrum offendit in. Est ut ridens laoreet delectus, erant lucilius expetendis et his, te putant argumentum mel. No sit rebum putant voluptatibus, dicam laoreet periculis ius ex. Possim mediocrem consectetuer ex quo. Partem fabulas an vim, dolor eligendi senserit vel an. Id has minimum fabellas.
+        </p>
+        <p>
+          An his phaedrum neglegentur consectetuer. Vis summo virtute alterum cu, illud verear ponderum est no, ex facer latine apeirian ius. No ancillae cotidieque cum, docendi deseruisse usu et, brute iudicabit maiestatis an vim. Ad sit saepe delenit accusam, dicat feugiat interesset et vel. Mea sonet percipit splendide cu, cum ad partem semper, repudiandae voluptatibus ad sea.
+        </p>
+        <p>
+          Tation recusabo theophrastus sed ne, ei mel aeque errem incorrupte. Iudicabit suscipiantur necessitatibus ei eos. Ne pro erant menandri accommodare, ius no vero dissentiet. Brute libris persecuti usu et, mei fabellas recteque ei.
+        </p>
+        <p>
+          Quo an graecis civibus, his harum dolore te. Quando praesent pro no, eirmod labitur necessitatibus usu an. Te singulis elaboraret vis, ea malis deseruisse vim. Debitis epicurei instructior id cum, ea nostro maiorum sea.
+        </p>
+        <p>
+          Has animal adolescens conclusionemque ut. Admodum noluisse ad pro, maiorum petentium vel at, id mel duis habeo assueverit. Omnis utinam ocurreret ne eum, meis necessitatibus id quo, labore elaboraret pri te. At albucius menandri nam, et duo corpora dissentias. Laoreet conceptam appellantur in qui, vel at scripta convenire cotidieque, cum te atqui paulo prodesset. An mei movet facilisi, quis maluisset ut mel.
+        </p>
+      </div>
+    </div>
+    
+    <div id="myModal" class="reveal-modal full app-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+      <div class="viewport">
+        <div class="app-rows">
+          <header>
+            <h1>List Builder</h1>
+          </header>
+          <div class="app-columns">
+            <div class="items app-column">
+              <ul class="library icon-library small-library flex-library">
+                <li>
+                  <a href="#">
+                    <div class="ratio">
+                      <div class="content"><i class="fa fa-paw primary-action"></i><span>Rawr</span></div>
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="selection app-column">
+              <div class="selected-item">
+                <div class="item-icon"><i class="fa fa-paw"></i></div>
+                <div class="item-label"><span>Rawr</span></div>
+                <div class="icon-button"><a class="button alert"><i class="fa fa-trash"></i></a></div>
+              </div>
+            </div>
+          </div>
+          <footer>
+            <a class="button secondary" data-cancel>Cancel</a>
+            <a class="button" data-confirm>OK</a>
+          </footer>
+        </div>
+      </div>
+      <a class="close-reveal-modal" aria-label="Close">&#215;</a>
+    </div>    
+    <script>
+      window.onerror = function( msg, url, lineNo, columnNo, error ){
+        alert( msg )
+
+        return false
+      }        
+    </script>
+    
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script src="js/underscore-min.js"></script>
+    <script src="js/ICanHaz.min.js"></script>
+    <script src="js/snap.svg-min.js"></script>
+    <script src="dragula.js"></script>
+    <script>
+'use strict';
+
+(function () {
+  'use strict';
+
+  $(document).foundation();
+
+  var icons = ['paw', 'key', 'leaf', 'heart', 'gift', 'pencil'];
+
+  var randomWord = function randomWord() {
+    var consonants = 'bcdfghjklmnpqrstvwxyz'.split('');
+    var vowels = 'aeiou'.split('');
+
+    var length = ~ ~(Math.random() * 10) + 1;
+
+    var word = consonants[~ ~(Math.random() * consonants.length)].toUpperCase();
+
+    for (var i = 0; i < length; i++) {
+      word += vowels[~ ~(Math.random() * vowels.length)];
+      word += consonants[~ ~(Math.random() * consonants.length)];
+
+      if (Math.random() < 0.2) {
+        word += ' ';
+        word += consonants[~ ~(Math.random() * consonants.length)];
+      }
+    }
+
+    return word;
+  };
+
+  $(function () {
+    var $itemContainer = $('.items ul');
+    var $itemTemplate = $('.items li');
+    var $selectContainer = $('.selection');
+
+    var $selectionTemplate = $('.selection .selected-item');
+
+    $selectionTemplate.remove();
+
+    var _loop = function _loop(i) {
+      (function () {
+        var $item = $itemTemplate.clone();
+
+        var icon = 'fa-' + icons[~ ~(Math.random() * icons.length)];
+        var $icon = $item.find('i');
+        $icon.removeClass('fa-paw');
+        $icon.addClass(icon);
+
+        var $label = $item.find('span');
+        var label = randomWord();
+        $label.text(label);
+        $item.attr('title', label);
+
+        var id = 'item-' + i;
+        $item.attr('id', id);
+
+        $itemContainer.append($item);
+
+        $item.click(function () {
+          var $el = $(this);
+          $el.toggleClass('selected');
+
+          if ($el.is('.selected')) {
+            (function () {
+              var $selected = $selectionTemplate.clone();
+              var $selIcon = $selected.find('.item-icon i');
+              var $selText = $selected.find('.item-label span');
+              var $selRemove = $selected.find('a.button');
+
+              $selIcon.removeClass('fa-paw');
+              $selIcon.addClass(icon);
+
+              $selText.text(label);
+              $selected.attr('title', label);
+
+              $selRemove.click(function () {
+                var $sel = $(this);
+
+                $selected.remove();
+                $el.toggleClass('selected');
+              });
+
+              $selected.attr('data-id', id);
+
+              $selectContainer.append($selected);
+            })();
+          } else {
+            var _$selected = $selectContainer.find('[data-id="' + id + '"]');
+
+            _$selected.remove();
+          }
+        });
+      })();
+    };
+
+    for (var i = 0; i < 100; i++) {
+      _loop(i);
+    }
+
+    for (var _i = 0; _i < 5; _i++) {
+      (function () {
+        $('#item-' + ~ ~(Math.random() * 100)).click();
+      })();
+    }
+
+    $itemTemplate.remove();
+
+    $(document).on('open.fndtn.reveal', '[data-reveal]', function () {
+      var modal = $(this);
+
+      $('html, body').addClass('no-overflow');
+    });
+
+    $(document).on('close.fndtn.reveal', '[data-reveal]', function () {
+      var modal = $(this);
+
+      $('html, body').removeClass('no-overflow');
+    });
+
+    dragula([document.querySelector('.selection')]);
+  });
+})();
+    </script>
+  </body>
+</html>

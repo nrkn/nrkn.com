@@ -1,0 +1,56 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+  display: grid;
+  height: 100vh;
+  grid-template-rows: auto 1fr auto;
+}
+
+header, main, footer {
+  padding: 0 1rem;
+}
+
+main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+}
+
+.history {
+  overflow-y: scroll;
+  box-shadow: inset 0 0 0.25rem rgba( 0, 0, 0, 0.2 );
+}
+
+.question {
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+footer p {
+  margin: 0;
+}
+
+.correct {
+  color: #21934d;
+}
+
+.wrong {
+  color: #c3334e;
+}
+
+.history .icon {
+  vertical-align: top;
+}
