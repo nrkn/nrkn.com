@@ -1,0 +1,30 @@
+body, html {
+  margin: 0;
+  overflow: hidden;
+}
+
+body > canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+svg {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+
+#lightExport {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: auto;
+  object-fit: none;
+  image-rendering: auto;
+}

@@ -1,0 +1,133 @@
+html {
+  box-sizing: border-box;
+  font-size: 80%;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: sans-serif;  
+  margin: 0;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+}
+
+#app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;  
+}
+
+#app > header, #app > footer {
+  padding: 1rem;
+}
+
+#app > footer {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 1rem;
+}
+
+#app > footer p {
+  margin: auto 0;
+}
+
+#tools {
+  padding: 0 1rem;
+}
+
+#tools form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#pointerMode label, #snapToGrid label {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+#pointerMode fieldset, #snapToGrid fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+#tools input[type="number"] {
+  width: 4rem;
+  text-align: right;
+  margin-left: auto;
+}
+
+#styles {
+  display: grid;
+  grid-template-columns: repeat( 5, auto );
+  gap: 0.5rem
+}
+
+#styles label {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 0.25rem;
+}
+
+#layers ol {
+  list-style: none;
+  padding-left: 0;
+}
+
+#layers label {
+  border: 1px solid #ccc;
+  display: block;
+  line-height: 2rem;
+}
+
+main {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  overflow: hidden;
+}
+
+#viewport {
+  overflow: hidden;
+}
+
+#info {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+#info fieldset {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+#info input {
+  border: 1px solid #eee;
+  width: 3rem;
+  text-align: right;
+}
+
+svg {
+  background: #eee;
+}
+
+
+/* svg app elements */
+
+svg #selectRectEl {
+  stroke-width: 1px;
+  stroke: #39f;
+  stroke-dasharray: 1 1;
+  fill: transparent;
+}
