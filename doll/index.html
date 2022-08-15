@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper Doll</title>
+  <style>
+    html,
+    body {
+      margin: 0;      
+    }
+
+    svg {
+      display: inline-block;
+      width: 20vmin;
+      height: 20vmin;
+      object-fit: contain;
+    }
+
+    .first {
+      width: 40vmin;
+      height: 40vmin;
+    }
+
+    .tiltBox {
+      display: inline-block;    
+      perspective: 20vmin;  
+    }
+
+    .tiltFirst {
+      perspective: 40vmin;
+    }
+
+    .tiltLeft {
+      transform:
+        rotateY(-22deg);
+    }
+
+    .tiltRight {
+      transform:
+        rotateY(22deg);
+    }
+  </style>
+</head>
+
+<body>
+  <script src="src/index.js" type="module" defer></script>
+</body>
+
+</html>

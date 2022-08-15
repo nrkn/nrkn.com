@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOKIA 3310</title>
+  <style>
+    html {
+      box-sizing: border-box;
+    }
+
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+
+    html,
+    body {
+      margin: 0;
+    }
+
+    div {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      padding: 2vmax;
+      box-shadow: inset 2vmax 2vmax 2vmax rgba( 0, 0, 0, 0.075 );
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+
+    .pixelated{
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
+    }
+
+    .noisy {
+      position: absolute;
+      left: 0;
+      top: 0; 
+      mix-blend-mode: luminosity;
+    } 
+  </style>
+</head>
+
+<body>
+  
+  <div class="noisy"></div>
+  <div class="cont"></div>  
+  <script defer type="module" src="js/index.js"></script>
+  <!-- <script def src="main.js"></script> -->
+</body>
+
+</html>
