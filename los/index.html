@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOS</title>
+  <style id="style-vars">
+    :root {
+      --fg-color: #eee;
+      --bg-color: #111;
+      --font-size: 2vw;
+    }
+  </style>
+  <style>
+    html {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+
+    .term {
+      font-family: monospace;
+      font-size: var(--font-size);
+      background-color: var(--bg-color);
+      color: var(--fg-color);
+    }
+
+    .fullscreen {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #app {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding: 1rem;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    #app pre {
+      margin: 0;
+      margin-top: auto;
+      overflow-y: scroll;
+      white-space: pre-wrap;
+      max-height: 100%;
+    }
+
+    #app input {
+      border: 0;
+      outline: 0;
+    }
+
+    #app form label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+    }
+  </style>
+</head>
+
+<body class="term fullscreen">
+  <div id="app" class="fullscreen">
+    <pre></pre>
+    <form>
+      <label>
+        <span id="prompt">/></span>
+        <input class="term">
+      </label>
+    </form>
+  </div>
+
+  <script src="src/index.js" defer type="module"></script>
+</body>
+
+</html>
