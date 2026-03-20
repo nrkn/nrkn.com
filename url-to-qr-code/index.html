@@ -1,0 +1,476 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL to QR Code</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem 2rem;
+    }
+
+    form {
+      display: table;
+    }
+
+    label {
+      display: table-row;
+      padding-bottom: 0.5rem;
+      line-height: 2;
+    }
+
+    label span,
+    label input {
+      display: table-cell;
+    }
+
+    label input {
+      font-size: 1rem;
+      width: 16rem;
+    }
+
+    label input[type="number"] {
+      text-align: right;
+    }
+
+    form button {
+      display: block;
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+    }
+
+    canvas {
+      display: block;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>URL to QR Code</h1>
+  <form>
+    <label>
+      <span>URL</span>
+      <input name="url" type="text" maxlength="32" />
+    </label>
+    <label>
+      <span>Size</span>
+      <input name="size" type="number" value="250" step="1" min="25" max="4096" />
+    </label>
+    <button name="generate">Generate</button>
+    <button name="reset" type="reset">Reset</button>
+  </form>
+  <canvas></canvas>
+  <h2>Limitations</h2>
+  <p>This was made for my personal use, so may not suit your needs:</p>
+  <ul>
+    <li>Only ASCII URLs are supported</li>
+    <li>URLs should be short; 32 characters or less</li>
+    <li>Only http:// and https:// URLs are supported</li>
+  </ul>
+
+  <!-- lib, adapted from https://github.com/soldair/node-qrcode -->
+  <script>
+    const VERSION = 2
+    const SIZE = 25
+    const DATA_CODEWORDS = 34
+    const EC_CODEWORDS = 10
+    const MAX_BYTES = 32
+    const FORMAT_BITS = 0x77c4
+    const ALIGNMENT_CENTER = 18
+    const PAD_BYTES = [0xec, 0x11]
+    const GENERATOR = new Uint8Array([
+      1, 216, 194, 159, 111, 199, 94, 95, 113, 157, 193
+    ])
+
+    const EXP_TABLE = new Uint8Array(512)
+    const LOG_TABLE = new Uint8Array(256)
+
+    for (let index = 0, value = 1; index < 255; index++) {
+      EXP_TABLE[index] = value
+      LOG_TABLE[value] = index
+
+      value <<= 1
+      if (value & 0x100) {
+        value ^= 0x11d
+      }
+    }
+
+    for (let index = 255; index < 512; index++) {
+      EXP_TABLE[index] = EXP_TABLE[index - 255]
+    }
+
+    const gfMultiply = (left, right) => {
+      if (left === 0 || right === 0) {
+        return 0
+      }
+
+      return EXP_TABLE[LOG_TABLE[left] + LOG_TABLE[right]]
+    }
+
+    const createMatrix = () => ({
+      size: SIZE,
+      data: new Uint8Array(SIZE * SIZE),
+      reserved: new Uint8Array(SIZE * SIZE)
+    })
+
+    const setModule = (matrix, row, col, value, reserved) => {
+      const index = row * SIZE + col
+      matrix.data[index] = value ? 1 : 0
+
+      if (reserved) {
+        matrix.reserved[index] = 1
+      }
+    }
+
+    const isReserved = (matrix, row, col) =>
+      matrix.reserved[row * SIZE + col] === 1
+
+    const xorModule = (matrix, row, col, value) => {
+      matrix.data[row * SIZE + col] ^= value ? 1 : 0
+    }
+
+    const assertUrl = url => {
+      if (typeof url !== 'string' || url.length === 0) {
+        throw Error('Expected a non-empty URL string')
+      }
+
+      if (!/^https?:\/\//.test(url)) {
+        throw Error('Expected an http:// or https:// URL')
+      }
+    }
+
+    const toAsciiBytes = url => {
+      const bytes = new Uint8Array(url.length)
+
+      for (let index = 0; index < url.length; index++) {
+        const codePoint = url.charCodeAt(index)
+
+        if (codePoint > 0x7f) {
+          throw Error('Only ASCII URLs are supported')
+        }
+
+        bytes[index] = codePoint
+      }
+
+      if (bytes.length > MAX_BYTES) {
+        throw Error('URL is too long for a version 2-L QR code')
+      }
+
+      return bytes
+    }
+
+    const createBitWriter = () => ({
+      bytes: [],
+      bitLength: 0
+    })
+
+    const putBit = (writer, bit) => {
+      const byteIndex = writer.bitLength >> 3
+      if (writer.bytes.length <= byteIndex) {
+        writer.bytes.push(0)
+      }
+
+      if (bit) {
+        writer.bytes[byteIndex] |= 0x80 >>> (writer.bitLength & 7)
+      }
+
+      writer.bitLength++
+    }
+
+    const putBits = (writer, value, length) => {
+      for (let shift = length - 1; shift >= 0; shift--) {
+        putBit(writer, ((value >>> shift) & 1) === 1)
+      }
+    }
+
+    const createDataCodewords = bytes => {
+      const writer = createBitWriter()
+
+      putBits(writer, 0b0100, 4)
+      putBits(writer, bytes.length, 8)
+
+      for (let index = 0; index < bytes.length; index++) {
+        putBits(writer, bytes[index], 8)
+      }
+
+      const dataBits = DATA_CODEWORDS * 8
+
+      if (writer.bitLength + 4 <= dataBits) {
+        putBits(writer, 0, 4)
+      }
+
+      while ((writer.bitLength & 7) !== 0) {
+        putBit(writer, 0)
+      }
+
+      for (let index = writer.bytes.length; index < DATA_CODEWORDS; index++) {
+        writer.bytes.push(PAD_BYTES[index & 1])
+      }
+
+      return new Uint8Array(writer.bytes)
+    }
+
+    const createErrorCorrectionCodewords = dataCodewords => {
+      const remainder = new Uint8Array(EC_CODEWORDS)
+
+      for (let dataIndex = 0; dataIndex < dataCodewords.length; dataIndex++) {
+        const factor = dataCodewords[dataIndex] ^ remainder[0]
+
+        remainder.copyWithin(0, 1)
+        remainder[EC_CODEWORDS - 1] = 0
+
+        for (let ecIndex = 0; ecIndex < EC_CODEWORDS; ecIndex++) {
+          remainder[ecIndex] ^= gfMultiply(GENERATOR[ecIndex + 1], factor)
+        }
+      }
+
+      return remainder
+    }
+
+    const setupFinderPattern = (matrix, originRow, originCol) => {
+      for (let rowOffset = -1; rowOffset <= 7; rowOffset++) {
+        const row = originRow + rowOffset
+        if (row < 0 || row >= SIZE) {
+          continue
+        }
+
+        for (let colOffset = -1; colOffset <= 7; colOffset++) {
+          const col = originCol + colOffset
+          if (col < 0 || col >= SIZE) {
+            continue
+          }
+
+          const isBorder = (
+            rowOffset >= 0 && rowOffset <= 6 && (colOffset === 0 || colOffset === 6)
+          )
+          const isEdge = (
+            colOffset >= 0 && colOffset <= 6 && (rowOffset === 0 || rowOffset === 6)
+          )
+          const isCenter = (
+            rowOffset >= 2 && rowOffset <= 4 && colOffset >= 2 && colOffset <= 4
+          )
+
+          setModule(matrix, row, col, isBorder || isEdge || isCenter, true)
+        }
+      }
+    }
+
+    const setupTimingPattern = matrix => {
+      for (let offset = 8; offset < SIZE - 8; offset++) {
+        const value = (offset & 1) === 0
+        setModule(matrix, offset, 6, value, true)
+        setModule(matrix, 6, offset, value, true)
+      }
+    }
+
+    const setupAlignmentPattern = matrix => {
+      for (let rowOffset = -2; rowOffset <= 2; rowOffset++) {
+        for (let colOffset = -2; colOffset <= 2; colOffset++) {
+          const isBorder = (
+            rowOffset === -2 || rowOffset === 2 || colOffset === -2 ||
+            colOffset === 2
+          )
+          const isCenter = rowOffset === 0 && colOffset === 0
+          setModule(
+            matrix, ALIGNMENT_CENTER + rowOffset, ALIGNMENT_CENTER + colOffset,
+            isBorder || isCenter, true
+          )
+        }
+      }
+    }
+
+    const setupFormatInfo = matrix => {
+      for (let index = 0; index < 15; index++) {
+        const bit = ((FORMAT_BITS >> index) & 1) === 1
+
+        if (index < 6) {
+          setModule(matrix, index, 8, bit, true)
+        } else if (index < 8) {
+          setModule(matrix, index + 1, 8, bit, true)
+        } else {
+          setModule(matrix, SIZE - 15 + index, 8, bit, true)
+        }
+
+        if (index < 8) {
+          setModule(matrix, 8, SIZE - index - 1, bit, true)
+        } else if (index < 9) {
+          setModule(matrix, 8, 15 - index, bit, true)
+        } else {
+          setModule(matrix, 8, 14 - index, bit, true)
+        }
+      }
+
+      setModule(matrix, SIZE - 8, 8, true, true)
+    }
+
+    const setupData = (matrix, codewords) => {
+      let row = SIZE - 1
+      let direction = -1
+      let byteIndex = 0
+      let bitIndex = 7
+
+      for (let col = SIZE - 1; col > 0; col -= 2) {
+        if (col === 6) {
+          col--
+        }
+
+        while (true) {
+          for (let pairOffset = 0; pairOffset < 2; pairOffset++) {
+            const currentCol = col - pairOffset
+
+            if (isReserved(matrix, row, currentCol)) {
+              continue
+            }
+
+            let value = false
+            if (byteIndex < codewords.length) {
+              value = ((codewords[byteIndex] >>> bitIndex) & 1) === 1
+            }
+
+            setModule(matrix, row, currentCol, value, false)
+            bitIndex--
+
+            if (bitIndex < 0) {
+              bitIndex = 7
+              byteIndex++
+            }
+          }
+
+          row += direction
+
+          if (row < 0 || row >= SIZE) {
+            row -= direction
+            direction = -direction
+            break
+          }
+        }
+      }
+    }
+
+    const applyMask0 = matrix => {
+      for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+          if (isReserved(matrix, row, col)) {
+            continue
+          }
+
+          if (((row + col) & 1) === 0) {
+            xorModule(matrix, row, col, true)
+          }
+        }
+      }
+    }
+
+    const buildMatrix = bytes => {
+      const matrix = createMatrix()
+      const dataCodewords = createDataCodewords(bytes)
+      const ecCodewords = createErrorCorrectionCodewords(dataCodewords)
+      const fullCodewords = new Uint8Array(DATA_CODEWORDS + EC_CODEWORDS)
+
+      fullCodewords.set(dataCodewords)
+      fullCodewords.set(ecCodewords, DATA_CODEWORDS)
+
+      setupFinderPattern(matrix, 0, 0)
+      setupFinderPattern(matrix, SIZE - 7, 0)
+      setupFinderPattern(matrix, 0, SIZE - 7)
+      setupTimingPattern(matrix)
+      setupAlignmentPattern(matrix)
+      setupFormatInfo(matrix)
+      setupData(matrix, fullCodewords)
+      applyMask0(matrix)
+
+      return matrix
+    }
+
+    const qrCode = url => {
+      assertUrl(url)
+
+      const bytes = toAsciiBytes(url)
+      const matrix = buildMatrix(bytes)
+
+      return {
+        size: SIZE,
+        data: matrix.data,
+        version: VERSION
+      }
+    }
+  </script>
+
+  <!-- runtime -->
+  <script>
+    const CANVAS_SIZE = 250
+    const EMPTY_COLOR = '#f0f0f0'
+
+    const els = {
+      form: document.querySelector('form'),
+      url: document.querySelector('input[name="url"]'),
+      size: document.querySelector('input[name="size"]'),
+      generate: document.querySelector('button[name="generate"]'),
+      reset: document.querySelector('button[name="reset"]'),
+      canvas: document.querySelector('canvas')
+    }
+
+    const ctx = els.canvas.getContext('2d')
+
+    const setEmptyCanvas = () => {
+      els.canvas.width = CANVAS_SIZE
+      els.canvas.height = CANVAS_SIZE
+
+      ctx.fillStyle = EMPTY_COLOR
+      ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE)
+    }
+
+    setEmptyCanvas()
+
+    const state = {
+      url: () => els.url.value,
+      size: () => els.size.valueAsNumber
+    }
+
+    els.generate.addEventListener('click', () => {
+      try {
+        const code = qrCode(state.url())
+        const scale = state.size() / code.size
+
+        els.canvas.width = code.size * scale
+        els.canvas.height = code.size * scale
+
+        ctx.fillStyle = 'white'
+
+        ctx.fillRect(0, 0, els.canvas.width, els.canvas.height)
+
+        ctx.fillStyle = 'black'
+
+        for (let row = 0; row < code.size; row++) {
+          for (let col = 0; col < code.size; col++) {
+            if (code.data[row * code.size + col]) {
+              ctx.fillRect(col * scale, row * scale, scale, scale)
+            }
+          }
+        }
+      } catch (error) {
+        alert(error.message)
+      }
+    })
+
+    els.reset.addEventListener('click', () => {
+      els.url.value = ''
+      els.size.value = String(CANVAS_SIZE)
+
+      setEmptyCanvas()
+    })
+
+    els.form.addEventListener('submit', e => {
+      e.preventDefault()
+      els.generate.click()
+    })
+
+    els.url.focus()
+  </script>
+</body>
+
+</html>
